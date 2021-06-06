@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Charts</title>
+</head>
+<body>
+    <div id="root">
+        <div class="wrapper">
+            <div class="app">
+                <h1 class="app__title">Архив метеослужб</h1>
+                <div class="app_container">
+                    <div class="app__side-bar">
+                        <div class="side__bar">
+                            <div class="source-select">
+                                <div class="source-select__item">Температура</div>
+                                <div class="source-select__item">Осадки</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="app__content">
+                        <div class="duration-set">
+                            <div class="duration-set__item">
+                                <select name="Select" id="from-date-select" class="date-select">
+                                    <option value="10" class="date-select__option">10</option>
+                                    <option value="20" class="date-select__option">20</option>
+                                </select>
+                            </div>
+                            <div class="duration-set__item">
+                                <select name="Select" id="to-date-select" class="date-select">
+                                    <option value="10" class="date-select__option">10</option>
+                                    <option value="20" class="date-select__option">20</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="chart" class="chart">
+                            <canvas></canvas>
+                            <div id="tooltip" class="chart__tooltip"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

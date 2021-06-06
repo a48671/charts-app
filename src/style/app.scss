@@ -1,0 +1,35 @@
+.app {
+  display: block;
+  border: 2px solid $app-border-color;
+  background-color: $app-background-color;
+  -webkit-border-radius: $border-radius;
+  -moz-border-radius: $border-radius;
+  border-radius: $border-radius;
+  padding: 10px;
+  width: 100%;
+  max-width: 1170px;
+}
+
+.app__title {
+  font-size: 27px;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.app_container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.app__side-bar {
+  width: 200px;
+}
+
+.app__content {
+  width: calc(100% - 200px - 30px);
+}
+
+.duration-set {
+  display: flex;
+  margin-bottom: 10px;
+}

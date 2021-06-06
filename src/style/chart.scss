@@ -1,0 +1,18 @@
+.chart {
+  display: block;
+  position: relative;
+  border: 1px solid $chart-border-color;
+  -webkit-border-radius: $border-radius;
+  -moz-border-radius: $border-radius;
+  border-radius: $border-radius;
+  background-color: $chart-background-color;
+}
+.chart__tooltip {
+  display: block;
+  pointer-events: none;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: $chart-text-color;
+  font-size: 12px;
+}
