@@ -1,5 +1,5 @@
 import { boundaries, css } from "src/utils";
-import { CIRCLE_RADIUS, ROWS_COUNT, X_COL_COUNT } from "../const";
+import { CIRCLE_RADIUS, X_COL_COUNT, ROW_HEIGHT } from "../const";
 export const HORIZONTAL_PADDING = 40;
 export const VERTICAL_PADDING = 20;
 
@@ -16,24 +16,24 @@ export class Chart {
      *     dpiMultiplier?: number - multiplier for width and height canvas,
      *     onChangeFocus?: (data) => void - callback function which will calling before change focus along X-axis,
      *     color?: string - chart color;
+     *     colWidth?: number - width`s column
      * };
      */
     constructor(canvas, props) {
-        const { width, thereIsXAxis, thereIsYAxis, ratioWidthToHeight, dpiMultiplier, onChangeFocus, color, height } = props;
+        const { width, thereIsXAxis, thereIsYAxis, ratioWidthToHeight, dpiMultiplier, onChangeFocus, color, height, colWidth } = props;
         this.canvas = canvas;
         this.ratioWidthToHeight = ratioWidthToHeight || 0.618;
         this.thereIsXAxis = thereIsXAxis;
         this.thereIsYAxis = thereIsYAxis;
         this.dpiMultiplier = dpiMultiplier || 2;
         this.ctx = this.canvas.getContext('2d');
+        this.setData([]);
         this.setWidth(width, height);
-        this.data = []; // data for calculate chart
-        this.yMin = 0; // min value in axis Y
-        this.yMax = 0; // max value in axis Y
-        this.yRatio = 0; // ratio viewHeight to yMax - yMin
-        this.xRatio = 0; // ratio viewWidth to data length
+        this.setRatio();
         this.onChangeFocus = onChangeFocus;
         this.color = color || 'grey';
+        this.colWidth = colWidth;
+        this.setColumnCount();
     }
 
     setWidth(width, height) {
@@ -45,10 +45,19 @@ export class Chart {
         this.horizontalPadding = this.thereIsYAxis ? HORIZONTAL_PADDING * this.dpiMultiplier : 0;
         this.viewHeight = this.dpiHeight - this.verticalPadding * 2;
         this.viewWidth = this.dpiWidth - this.horizontalPadding;
+        this.setColumnCount();
+        this.setData(this.data);
 
         css(this.canvas, { width: this.canvasWidth + 'px', height: this.canvasHeight + 'px' });
         this.canvas.width = this.dpiWidth;
         this.canvas.height = this.dpiHeight;
+
+        this.setRatio();
+        this.paint();
+    }
+
+    setColumnCount() {
+        this.columnCount = this.colWidth ? this.viewWidth / this.colWidth : this.viewData.length;
     }
 
     /**
@@ -67,11 +76,18 @@ export class Chart {
      */
     setData(data) {
         this.data = data;
-        const [yMin, yMax] = boundaries(this.data);
+        const lengthByColumnsCount = this.columnCount ? this.columnCount + 1 : this.data.length;
+        this.viewData = data.slice(0, lengthByColumnsCount);
+        this.setRatio();
+        this.setColumnCount();
+    }
+
+    setRatio() {
+        const [yMin, yMax] = boundaries(this.viewData);
         this.yMin = yMin;
         this.yMax = yMax;
         this.yRatio = this.viewHeight / (this.yMax - this.yMin);
-        this.xRatio = this.viewWidth / (this.data.length - 1);
+        this.xRatio = this.colWidth || this.viewWidth / (this.viewData.length - 1);
     }
 
     clear() {
@@ -80,27 +96,24 @@ export class Chart {
 
     paintLine() {
         this.ctx.beginPath();
-        this.ctx.lineWidth = 1;
+        this.ctx.lineWidth = 2;
         this.ctx.strokeStyle = this.color;
         this.ctx.fillStyle = this.color;
-        this.ctx.lineTo(0, this.dpiHeight - this.verticalPadding  - this.yMin);
         let i = 0
-
-        for (const { v } of this.data) {
+        for (const { v } of this.viewData) {
+            const y = this.getY(v);
             const x = Math.round(i * this.xRatio);
-            const y = this.dpiHeight - this.verticalPadding - v * this.yRatio
             this.ctx.lineTo(x, y);
             i++;
         }
-        this.ctx.lineTo(this.viewWidth, this.verticalPadding + this.viewHeight);
         this.ctx.stroke();
-        this.ctx.fill();
         this.ctx.closePath();
     }
 
     paintYAxis() {
-        const step = this.viewHeight / ROWS_COUNT;
-        const sizeStep = (this.yMax - this.yMin) / ROWS_COUNT;
+        const step = ROW_HEIGHT;
+        const rowsCount = this.viewHeight / ROW_HEIGHT
+        const sizeStep = (this.yMax - this.yMin) / rowsCount;
 
         this.ctx.beginPath();
         this.ctx.lineWidth = 1;
@@ -108,9 +121,27 @@ export class Chart {
         this.ctx.font = 'normal 20px Helvetica, sans-serif';
         this.ctx.fillStyle = '#96a2aa';
 
-        for (let i = 0; i <= ROWS_COUNT; i++) {
-            const y = this.dpiHeight - step * i - this.verticalPadding;
-            const textStep = (sizeStep * i).toFixed(2).toString();
+        /**
+         * Нижняя граница графика (ось X)
+         */
+        this.ctx.moveTo(0, this.verticalPadding + this.viewHeight);
+        this.ctx.lineTo(this.viewWidth, this.verticalPadding + this.viewHeight);
+
+        if (this.yMin < 0) {
+            for (let i = 0; i <= rowsCount; i++) {
+                const y = this.verticalPadding + this.yMax * this.yRatio + step * i;
+                if (y > this.verticalPadding + this.viewHeight) break;
+                const textStep = (sizeStep * i * -1).toFixed(2).toString();
+                this.ctx.fillText(textStep, this.viewWidth + 10, y + 5);
+                this.ctx.moveTo(0, y);
+                this.ctx.lineTo(this.viewWidth, y);
+            }
+        }
+
+        for (let i = 0; i <= rowsCount; i++) {
+            const y = this.verticalPadding + this.yMax * this.yRatio - step * i;
+            if (y < this.verticalPadding) break;
+            const textStep = (sizeStep * i).toFixed(1).toString();
             this.ctx.fillText(textStep, this.viewWidth + 10, y + 5);
             this.ctx.moveTo(0, y);
             this.ctx.lineTo(this.viewWidth, y);
@@ -130,11 +161,11 @@ export class Chart {
         this.ctx.lineWidth = 2;
         this.ctx.font = 'normal 20px Helvetica, sans-serif';
         this.ctx.fillStyle = '#96a2aa';
-        const xStepSize = Math.round(this.data.length / X_COL_COUNT);
-        for (let i = 0; i < this.data.length; i++) {
+        const xStepSize = Math.round(this.viewData.length / X_COL_COUNT);
+        for (let i = 0; i < this.viewData.length; i++) {
 
             const x = Math.round(i * this.xRatio);
-            const dateText = this.data[i].t;
+            const dateText = this.viewData[i].t;
 
             if (i % xStepSize === 0) {
                 this.ctx.fillText(dateText, x, this.verticalPadding + this.viewHeight + 30);
@@ -143,10 +174,10 @@ export class Chart {
             }
 
             // отрисовка вертикальной линии, если мышка находится на отрисовываемом значении
-            if (this.isOver(mouseX, x, this.data.length, this.viewWidth)) {
+            if (this.isOver(mouseX, x, this.viewData.length, this.viewWidth)) {
                 this.ctx.moveTo(x, this.verticalPadding);
                 this.ctx.lineTo(x, this.verticalPadding + this.viewHeight);
-                this.onChangeFocus({ date: dateText, value: this.data[i].v })
+                this.onChangeFocus({ date: dateText, value: this.viewData[i].v })
             }
         }
         this.ctx.stroke();
@@ -158,10 +189,10 @@ export class Chart {
      */
     paintCircles(mouseX) {
         let i = 0;
-        for (const { v } of this.data) {
+        for (const { v } of this.viewData) {
+            const y = this.getY(v);
             const x = Math.round(i * this.xRatio);
-            const y = this.dpiHeight - this.verticalPadding - v * this.yRatio;
-            if (this.isOver(mouseX, x, this.data.length, this.viewWidth)) {
+            if (this.isOver(mouseX, x, this.viewData.length, this.viewWidth)) {
                 this.circle(x, y, CIRCLE_RADIUS);
             }
             i++;
@@ -184,5 +215,24 @@ export class Chart {
             return false;
         }
         return Math.abs(mouseX - x) < (viewWidth / length) / 2;
+    }
+
+    /**
+     * Получение относительного отступа по оси Y сверху вниз по значению
+     * @param value: number
+     */
+    getY(value) {
+        if (value < 0) {
+            return this.verticalPadding + (this.yMax + Math.abs(value)) * this.yRatio;
+        } else {
+            return this.verticalPadding + (this.yMax - value) * this.yRatio;
+        }
+    }
+
+    /**
+     * Получение количества столбцов в графике, чтобы понимать сколько элементов списка вмещает график по оси X
+     */
+    getColumnCount() {
+        return this.columnCount;
     }
 }

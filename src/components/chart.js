@@ -1,6 +1,7 @@
 import { DPI_MULTIPLIER } from 'src/const';
 import { Chart } from 'src/chart';
 import { tooltip } from 'src/components/tooltip';
+import { ScrollChart } from 'src/components/scroll-chart';
 
 export function chart(chartElement, data) {
     const { width } = chartElement.getBoundingClientRect();
@@ -12,7 +13,8 @@ export function chart(chartElement, data) {
         thereIsYAxis: true,
         thereIsXAxis: true,
         dpiMultiplier: DPI_MULTIPLIER,
-        onChangeFocus: tooltipComponent.show
+        onChangeFocus: tooltipComponent.show,
+        colWidth: 30
     });
     mainChart.setData(data);
     mainChart.paint();
@@ -46,14 +48,17 @@ export function chart(chartElement, data) {
         proxy.mouse = { x };
     }
 
-    const scrollCanvas = chartElement.querySelector('canvas[data-el="scroll-chart"]');
-    const scrollChart = new Chart(scrollCanvas, {
-        width,
-        height: 100,
-        dpiMultiplier: DPI_MULTIPLIER
+    const scrollChartComponent = new ScrollChart();
+
+    chartElement.appendChild(scrollChartComponent.getElement());
+    const scrollChart = scrollChartComponent.createChart(data);
+    scrollChartComponent.setColumnCountInWindow(mainChart.getColumnCount());
+
+    window.addEventListener('resize', function () {
+        mainChart.setWidth(chartElement.getBoundingClientRect().width);
+        scrollChart.setWidth(chartElement.getBoundingClientRect().width, 100);
+        scrollChartComponent.setColumnCountInWindow(mainChart.getColumnCount());
     });
-    scrollChart.setData(data);
-    scrollChart.paint();
 
     return({
         init() {

@@ -6,13 +6,35 @@
   -moz-border-radius: $border-radius;
   border-radius: $border-radius;
   background-color: $chart-background-color;
-}
-.chart__tooltip {
-  display: block;
-  pointer-events: none;
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  color: $chart-text-color;
-  font-size: 12px;
+  overflow: hidden;
+  &__canvas-scroll {
+    cursor: ew-resize;
+  }
+  &__tooltip {
+    display: block;
+    pointer-events: none;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: $chart-text-color;
+    font-size: 12px;
+  }
+  &__scroll {
+    position: relative;
+    margin-top: 10px;
+    border-top: 1px solid $chart-border-color;
+  }
+  &__scroll-overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    &_left {
+      left: 0;
+    }
+    &_right {
+      right: 0;
+    }
+  }
 }
