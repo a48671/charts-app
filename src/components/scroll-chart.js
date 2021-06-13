@@ -37,16 +37,22 @@ export class ScrollChart {
 
     setWindowWidth() {
         const { width } = this.wrapper.getBoundingClientRect();
+        if (this.chart.getColumnCount() === 0) {
+            this.windowWidth = width;
+            return;
+        }
         this.windowWidth = width * (this.columnCountInWindow / this.chart.getColumnCount());
         this.setLeftOverlayWidth(0);
         this.setRightOverlayWidth(width - this.windowWidth);
     }
 
     setLeftOverlayWidth(width) {
+        this.leftOverlayWidth = width;
         this.leftOverlay.style = `width: ${width}px`;
     }
 
     setRightOverlayWidth(width) {
+        this.rightOverlayWidth = width;
         this.rightOverlay.style = `width: ${width}px`;
     }
 
@@ -84,7 +90,24 @@ export class ScrollChart {
                     newWidthForRightOverlay = canvasWidth - self.windowWidth;
                 }
                 self.setRightOverlayWidth(newWidthForRightOverlay);
+                self.computeRangeData();
             }
         }) // не забыть отписаться
+    }
+    computeRangeData() {
+        const { width: canvasWidth } = this.canvas.getBoundingClientRect();
+        const startIndex = Math.floor(this.chart.getColumnCount() * this.leftOverlayWidth / canvasWidth);
+        const endIndex = Math.ceil(startIndex + this.columnCountInWindow);
+        const viewData = this.chart.viewData.slice(startIndex, endIndex);
+        this.subscribesForChangeRangeData.forEach(callback => callback(viewData));
+    }
+
+    /**
+     * @param data: Array<{ t: string; v: number }>
+     */
+    subscribesForChangeRangeData = [];
+
+    addSubscribeForChangeRangeData(callback) {
+        this.subscribesForChangeRangeData.push(callback);
     }
 }

@@ -56,8 +56,11 @@ export class Chart {
         this.paint();
     }
 
+    /**
+     * Установка количества столбцов по оси X
+     */
     setColumnCount() {
-        this.columnCount = this.colWidth ? this.viewWidth / this.colWidth : this.viewData.length;
+        this.columnCount = this.colWidth ? Math.floor(this.viewWidth / this.colWidth) : this.viewData.length;
     }
 
     /**
@@ -86,7 +89,9 @@ export class Chart {
         const [yMin, yMax] = boundaries(this.viewData);
         this.yMin = yMin;
         this.yMax = yMax;
-        this.yRatio = this.viewHeight / (this.yMax - this.yMin);
+        // range никогда не должен быть 0, если this.yMax - this.yMin = 0, значит yRatio = viewHeight
+        const range = this.yMax - this.yMin || 1;
+        this.yRatio = this.viewHeight / range;
         this.xRatio = this.colWidth || this.viewWidth / (this.viewData.length - 1);
     }
 
@@ -128,23 +133,35 @@ export class Chart {
         this.ctx.lineTo(this.viewWidth, this.verticalPadding + this.viewHeight);
 
         if (this.yMin < 0) {
-            for (let i = 0; i <= rowsCount; i++) {
-                const y = this.verticalPadding + this.yMax * this.yRatio + step * i;
-                if (y > this.verticalPadding + this.viewHeight) break;
+            const getNegativeYByI = (i) => {
+                return this.verticalPadding + this.yMax * this.yRatio + step * i;
+            };
+            let i = 0;
+            while (getNegativeYByI(i) < this.verticalPadding + this.viewHeight) {
+                const y = getNegativeYByI(i);
                 const textStep = (sizeStep * i * -1).toFixed(2).toString();
                 this.ctx.fillText(textStep, this.viewWidth + 10, y + 5);
                 this.ctx.moveTo(0, y);
                 this.ctx.lineTo(this.viewWidth, y);
+                i++;
             }
         }
 
-        for (let i = 0; i <= rowsCount; i++) {
-            const y = this.verticalPadding + this.yMax * this.yRatio - step * i;
-            if (y < this.verticalPadding) break;
+        const getPositiveYByI = (i) => {
+            return this.verticalPadding + this.yMax * this.yRatio - step * i;
+        };
+        let i = 0;
+        while (getPositiveYByI(i) >= this.verticalPadding) {
+            const y = getPositiveYByI(i);
+            if (y > this.verticalPadding + this.viewHeight) {
+                i++;
+                continue;
+            }
             const textStep = (sizeStep * i).toFixed(1).toString();
             this.ctx.fillText(textStep, this.viewWidth + 10, y + 5);
             this.ctx.moveTo(0, y);
             this.ctx.lineTo(this.viewWidth, y);
+            i++;
         }
         this.ctx.moveTo(this.viewWidth, this.verticalPadding);
         this.ctx.lineTo(this.viewWidth, this.viewWidth);
@@ -161,20 +178,19 @@ export class Chart {
         this.ctx.lineWidth = 2;
         this.ctx.font = 'normal 20px Helvetica, sans-serif';
         this.ctx.fillStyle = '#96a2aa';
-        const xStepSize = Math.round(this.viewData.length / X_COL_COUNT);
         for (let i = 0; i < this.viewData.length; i++) {
 
             const x = Math.round(i * this.xRatio);
             const dateText = this.viewData[i].t;
 
-            if (i % xStepSize === 0) {
+            if (i % X_COL_COUNT === 0) {
                 this.ctx.fillText(dateText, x, this.verticalPadding + this.viewHeight + 30);
                 this.ctx.moveTo(x, this.verticalPadding + this.viewHeight);
                 this.ctx.lineTo(x, this.verticalPadding + this.viewHeight + 10);
             }
 
             // отрисовка вертикальной линии, если мышка находится на отрисовываемом значении
-            if (this.isOver(mouseX, x, this.viewData.length, this.viewWidth)) {
+            if (this.isOver(mouseX, x, this.columnCount, this.viewWidth)) {
                 this.ctx.moveTo(x, this.verticalPadding);
                 this.ctx.lineTo(x, this.verticalPadding + this.viewHeight);
                 this.onChangeFocus({ date: dateText, value: this.viewData[i].v })
@@ -192,7 +208,7 @@ export class Chart {
         for (const { v } of this.viewData) {
             const y = this.getY(v);
             const x = Math.round(i * this.xRatio);
-            if (this.isOver(mouseX, x, this.viewData.length, this.viewWidth)) {
+            if (this.isOver(mouseX, x, this.columnCount, this.viewWidth)) {
                 this.circle(x, y, CIRCLE_RADIUS);
             }
             i++;
@@ -214,7 +230,7 @@ export class Chart {
         if (!mouseX) {
             return false;
         }
-        return Math.abs(mouseX - x) < (viewWidth / length) / 2;
+        return Math.abs(mouseX - x) < (viewWidth / length) / 2;;
     }
 
     /**

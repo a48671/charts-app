@@ -53,6 +53,10 @@ export function chart(chartElement, data) {
     chartElement.appendChild(scrollChartComponent.getElement());
     const scrollChart = scrollChartComponent.createChart(data);
     scrollChartComponent.setColumnCountInWindow(mainChart.getColumnCount());
+    scrollChartComponent.addSubscribeForChangeRangeData(function(data) {
+        mainChart.setData(data);
+        mainChart.paint();
+    });
 
     window.addEventListener('resize', function () {
         mainChart.setWidth(chartElement.getBoundingClientRect().width);
