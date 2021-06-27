@@ -23,17 +23,23 @@ export function css(element, styles = {}) {
 /**
  *
  * @param tagName: string
- * @param className: string
+ * @param className?: string
  * @param children: Array<DOMElement>
  * @returns DOMElement
  */
 export function createElement(tagName, className, children) {
     const element = document.createElement(tagName);
-    element.className = className;
+    if (className) {
+        element.className = className;
+    }
     if (Array.isArray(children)) {
         for (const child of children) {
-            element.appendChild(child);
+            child && element.appendChild(child);
         }
     }
     return element;
+}
+
+export function getDataByDateRange(data, start, end) {
+    return data.filter(item => (item.t >= start && item.t <= end));
 }

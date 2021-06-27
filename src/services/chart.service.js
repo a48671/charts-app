@@ -3,7 +3,7 @@ import { CIRCLE_RADIUS, X_COL_COUNT, ROW_HEIGHT } from "../const";
 export const HORIZONTAL_PADDING = 40;
 export const VERTICAL_PADDING = 20;
 
-export class Chart {
+export class ChartService {
 
     /**
      * @param canvas: HTMLCanvasElement;
@@ -32,6 +32,11 @@ export class Chart {
         this.setRatio();
         this.onChangeFocus = onChangeFocus;
         this.color = color || 'grey';
+        this.colWidth = colWidth;
+        this.setColumnCount();
+    }
+
+    setColWidth(colWidth) {
         this.colWidth = colWidth;
         this.setColumnCount();
     }

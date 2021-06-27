@@ -1,8 +1,16 @@
 import 'src/style/index.scss';
-import 'src/components/chart';
+import { App } from 'src/components/app';
 import { chart } from 'src/components/chart';
-import precipitation from 'src/mocks/precipitation.json';
-import temperature from 'src/mocks/temperature.json';
+import { scrollChart } from 'src/components/scroll-chart';
+import { store } from 'src/store';
 
-const newChart = chart(document.getElementById('chart'), temperature.slice(0, 60));
-newChart.init();
+const app = new App().getElement();
+
+const root = document.getElementById('root');
+root.appendChild(app);
+chart.init();
+scrollChart.init();
+
+
+
+

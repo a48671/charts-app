@@ -1,0 +1,21 @@
+.check-data {
+  &__item {
+    font-size: 14px;
+    padding: 20px 15px;
+    border: 1px solid $chart-border-color;
+    border-radius: $border-radius;
+    text-align: center;
+    margin-bottom: 15px;
+    cursor: pointer;
+    &:last-child {
+      margin-bottom: 0;
+    }
+    &.active {
+      background-color: $active-button-background-color;
+      pointer-events: none;
+    }
+    &:hover {
+      background-color: #fff;
+    }
+  }
+}

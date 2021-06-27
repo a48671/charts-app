@@ -1,49 +1,40 @@
 import { createElement } from 'src/utils';
-import { Chart } from "../chart";
+import { ChartService } from "src/services/chart.service";
 import { DPI_MULTIPLIER } from "../const";
+import { AbstractComponent } from "./abstract-component";
+import { store } from "src/store";
 
-export class ScrollChart {
+class ScrollChart extends AbstractComponent {
 
     constructor() {
+        super();
+        this.columnCountInWindow = store.state.columnCountInWindow;
+        this.rightOverlayWidth = 0;
         this.canvas = createElement('canvas', 'chart__canvas-scroll');
         this.leftOverlay = createElement('div', 'chart__scroll-overlay chart__scroll-overlay_left');
         this.rightOverlay = createElement('div', 'chart__scroll-overlay chart__scroll-overlay_right');
         const children = [this.canvas, this.leftOverlay, this.rightOverlay];
         this.wrapper = createElement('div', 'chart__scroll', children);
-    }
 
-    getElement() {
-        return this.wrapper;
-    }
-
-    createChart(data) {
-        const { width } = this.wrapper.getBoundingClientRect();
-        this.chart = new Chart(this.canvas, {
-            width,
-            height: 100,
-            dpiMultiplier: DPI_MULTIPLIER
-        });
-        this.chart.setData(data);
-        this.chart.paint();
         this.moveWindowHandler();
-        return this.chart;
     }
 
     setColumnCountInWindow(columnCountInWindow) {
         this.columnCountInWindow = columnCountInWindow;
         this.setWindowWidth();
-
     }
 
     setWindowWidth() {
         const { width } = this.wrapper.getBoundingClientRect();
-        if (this.chart.getColumnCount() === 0) {
+        const columnCount = this.chart.getColumnCount();
+        if (columnCount === 0) {
             this.windowWidth = width;
             return;
         }
-        this.windowWidth = width * (this.columnCountInWindow / this.chart.getColumnCount());
-        this.setLeftOverlayWidth(0);
-        this.setRightOverlayWidth(width - this.windowWidth);
+        this.windowWidth = width * (this.columnCountInWindow / columnCount);
+        this.setLeftOverlayWidth(width - this.rightOverlayWidth - this.windowWidth);
+        this.setRightOverlayWidth(this.rightOverlayWidth);
+        this.computeRangeData();
     }
 
     setLeftOverlayWidth(width) {
@@ -99,15 +90,36 @@ export class ScrollChart {
         const startIndex = Math.floor(this.chart.getColumnCount() * this.leftOverlayWidth / canvasWidth);
         const endIndex = Math.ceil(startIndex + this.columnCountInWindow);
         const viewData = this.chart.viewData.slice(startIndex, endIndex);
-        this.subscribesForChangeRangeData.forEach(callback => callback(viewData));
+        store.setState({ focusDate:  viewData });
     }
 
-    /**
-     * @param data: Array<{ t: string; v: number }>
-     */
-    subscribesForChangeRangeData = [];
+    setData(data) {
+        this.data = data
+        this.chart.setData(this.data);
+        this.chart.paint();
+        this.setWindowWidth();
+        this.computeRangeData();
+    }
 
-    addSubscribeForChangeRangeData(callback) {
-        this.subscribesForChangeRangeData.push(callback);
+    init() {
+        const { width } = this.wrapper.getBoundingClientRect();
+        this.chart = new ChartService(this.canvas, {
+            width,
+            height: 100,
+            dpiMultiplier: DPI_MULTIPLIER
+        });
+        this.setColumnCountInWindow(store.state.columnCountInWindow);
+        this.setData(store.state.data);
+
+        store.addSubscribe(state => {
+            if (state.data !== this.chart.data) {
+                this.setData(state.data);
+            }
+            if (this.columnCountInWindow !== state.columnCountInWindow) {
+                this.setColumnCountInWindow(state.columnCountInWindow);
+            }
+        });
     }
 }
+
+export const scrollChart = new ScrollChart();
