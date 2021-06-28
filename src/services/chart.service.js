@@ -63,7 +63,7 @@ export class ChartService {
      * Установка количества столбцов по оси X
      */
     setColumnCount() {
-        this.columnCount = this.colWidth ? Math.floor(this.viewWidth / this.colWidth) : this.viewData.length;
+        this.columnCount = this.colWidth ? Math.floor(this.viewWidth / this.colWidth) : this.data.length;
     }
 
     /**
@@ -82,10 +82,10 @@ export class ChartService {
      */
     setData(data) {
         this.data = data;
+        this.setColumnCount();
         const lengthByColumnsCount = this.columnCount ? this.columnCount + 1 : this.data.length;
         this.viewData = data.slice(0, lengthByColumnsCount);
         this.setRatio();
-        this.setColumnCount();
     }
 
     setRatio() {

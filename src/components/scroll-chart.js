@@ -98,6 +98,7 @@ class ScrollChart extends AbstractComponent {
         this.data = data
         this.chart.setData(this.data);
         this.chart.paint();
+        this.setRightOverlayWidth(0);
         this.setWindowWidth();
         this.computeRangeData();
     }
