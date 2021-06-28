@@ -13,12 +13,12 @@ export class Zoom extends AbstractComponent {
 
         this.wrapper.addEventListener('click', (event) => {
             switch (event.target) {
-                case this.up : {
+                case this.up: {
                     const colWidth = store.state.colWidth < 40 ? store.state.colWidth + 4 : 40;
                     store.setState({colWidth});
                     return;
                 }
-                case this.down : {
+                case this.down: {
                     const colWidth = store.state.colWidth > 10 ? store.state.colWidth - 4 : 10;
                     store.setState({colWidth});
                     return;

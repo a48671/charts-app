@@ -5,7 +5,6 @@ import { AbstractComponent } from "./abstract-component";
 import { store } from "src/store";
 
 class ScrollChart extends AbstractComponent {
-
     constructor() {
         super();
         this.columnCountInWindow = store.state.columnCountInWindow;
@@ -64,7 +63,8 @@ class ScrollChart extends AbstractComponent {
 
             function moveHandler({ clientX }) {
                 const rangeBetweenCanvasLeftAndCatchPoint = clientX - canvasLeft;
-                let newWidthForLeftOverlay = rangeBetweenCanvasLeftAndCatchPoint - rangeBetweenLeftOverlayRightAndCatchPoint;
+                let newWidthForLeftOverlay =
+                    rangeBetweenCanvasLeftAndCatchPoint - rangeBetweenLeftOverlayRightAndCatchPoint;
                 if (newWidthForLeftOverlay < 0) {
                     newWidthForLeftOverlay = 0;
                 }
@@ -73,7 +73,8 @@ class ScrollChart extends AbstractComponent {
                 }
                 self.setLeftOverlayWidth(newWidthForLeftOverlay);
                 const rangeBetweenCanvasRightAndCatchPoint = canvasRight - clientX;
-                let newWidthForRightOverlay = rangeBetweenCanvasRightAndCatchPoint - rangeBetweenRightOverlayLeftAndCatchPoint;
+                let newWidthForRightOverlay =
+                    rangeBetweenCanvasRightAndCatchPoint - rangeBetweenRightOverlayLeftAndCatchPoint;
                 if (newWidthForRightOverlay < 0) {
                     newWidthForRightOverlay = 0;
                 }
@@ -90,7 +91,7 @@ class ScrollChart extends AbstractComponent {
         const startIndex = Math.floor(this.chart.getColumnCount() * this.leftOverlayWidth / canvasWidth);
         const endIndex = Math.ceil(startIndex + this.columnCountInWindow);
         const viewData = this.chart.viewData.slice(startIndex, endIndex);
-        store.setState({ focusDate:  viewData });
+        store.setState({ focusDate: viewData });
     }
 
     setData(data) {
@@ -111,7 +112,7 @@ class ScrollChart extends AbstractComponent {
         this.setColumnCountInWindow(store.state.columnCountInWindow);
         this.setData(store.state.data);
 
-        store.addSubscribe(state => {
+        store.addSubscribe((state) => {
             if (state.data !== this.chart.data) {
                 this.setData(state.data);
             }

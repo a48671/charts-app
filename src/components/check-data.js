@@ -15,12 +15,12 @@ export class CheckData extends AbstractComponent {
         this.wrapper.addEventListener('click', (event) => {
             const { start, end, temperature, precipitation } = store.state;
             switch (event.target) {
-                case this.checkTemperature : {
+                case this.checkTemperature: {
                     const data = getDataByDateRange(temperature, start, end);
                     store.setState({data, selectedData: 'temperature'});
                     return;
                 }
-                case this.checkPrecipitation : {
+                case this.checkPrecipitation: {
                     const data = getDataByDateRange(precipitation, start, end);
                     store.setState({data, selectedData: 'precipitation'});
                     return;
@@ -38,7 +38,7 @@ export class CheckData extends AbstractComponent {
                     this.checkTemperature.classList.remove('active');
                     this.checkPrecipitation.classList.add('active');
                     return;
-                default :
+                default:
                     this.checkTemperature.classList.remove('active');
                     this.checkPrecipitation.classList.remove('active');
             }

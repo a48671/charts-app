@@ -4,10 +4,9 @@ export const HORIZONTAL_PADDING = 40;
 export const VERTICAL_PADDING = 20;
 
 export class ChartService {
-
     /**
      * @param canvas: HTMLCanvasElement;
-     * @param: {
+     * @params: {
      *     width: number - width wrapper which containing canvas;
      *     ratioWidthToHeight?: number - ratio width to height;
      *     height?: number - height for canvas
@@ -20,19 +19,18 @@ export class ChartService {
      * };
      */
     constructor(canvas, props) {
-        const { width, thereIsXAxis, thereIsYAxis, ratioWidthToHeight, dpiMultiplier, onChangeFocus, color, height, colWidth } = props;
         this.canvas = canvas;
-        this.ratioWidthToHeight = ratioWidthToHeight || 0.618;
-        this.thereIsXAxis = thereIsXAxis;
-        this.thereIsYAxis = thereIsYAxis;
-        this.dpiMultiplier = dpiMultiplier || 2;
+        this.ratioWidthToHeight = props.ratioWidthToHeight || 0.618;
+        this.thereIsXAxis = props.thereIsXAxis;
+        this.thereIsYAxis = props.thereIsYAxis;
+        this.dpiMultiplier = props.dpiMultiplier || 2;
         this.ctx = this.canvas.getContext('2d');
         this.setData([]);
-        this.setWidth(width, height);
+        this.setWidth(props.width, props.height);
         this.setRatio();
-        this.onChangeFocus = onChangeFocus;
-        this.color = color || 'grey';
-        this.colWidth = colWidth;
+        this.onChangeFocus = props.onChangeFocus;
+        this.color = props.color || 'grey';
+        this.colWidth = props.colWidth;
         this.setColumnCount();
     }
 
@@ -184,7 +182,6 @@ export class ChartService {
         this.ctx.font = 'normal 20px Helvetica, sans-serif';
         this.ctx.fillStyle = '#96a2aa';
         for (let i = 0; i < this.viewData.length; i++) {
-
             const x = Math.round(i * this.xRatio);
             const dateText = this.viewData[i].t;
 
@@ -235,7 +232,7 @@ export class ChartService {
         if (!mouseX) {
             return false;
         }
-        return Math.abs(mouseX - x) < (viewWidth / length) / 2;;
+        return Math.abs(mouseX - x) < (viewWidth / length) / 2;
     }
 
     /**

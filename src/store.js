@@ -26,8 +26,7 @@ class Store {
             ...this.state,
             ...newState
         }
-        this.subscribtions.forEach(callback => callback(this.state));
-        console.log(this.state);
+        this.subscribtions.forEach((callback) => callback(this.state));
     }
 }
 

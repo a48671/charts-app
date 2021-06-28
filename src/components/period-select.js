@@ -13,7 +13,7 @@ export class PeriodSelect extends AbstractComponent {
         this.end.value = store.state.end;
         this.wrapper = createElement('div', 'period-select', [this.start, this.end]);
 
-        this.wrapper.addEventListener('input', event => {
+        this.wrapper.addEventListener('input', (event) => {
             if (new Date(event.target.value).toString() === 'Invalid Date') return;
             const { start, end, selectedData } = store.state;
             const date = event.target.value;
@@ -21,14 +21,13 @@ export class PeriodSelect extends AbstractComponent {
             const newEnd = event.target === this.end ? date : end;
             const data = getDataByDateRange(store.state[selectedData], newStart, newEnd);
             switch (event.target) {
-                case this.start :
+                case this.start:
                     store.setState({ start: event.target.value, data });
                     return;
-                case this.end :
+                case this.end:
                     store.setState({ end: event.target.value, data });
                     return;
             }
         })
     }
-
 }

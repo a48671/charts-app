@@ -3,7 +3,7 @@ import { css } from 'src/utils';
 export function tooltip(element) {
     if (!element) return;
     const clear = () => element.innerHTML = '';
-    return({
+    return ({
         show(data) {
             clear();
             element.innerHTML = `${data.date}: ${data.value}`;

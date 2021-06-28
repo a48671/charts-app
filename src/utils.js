@@ -13,7 +13,7 @@ export function boundaries(data) {
     if (typeof min !== 'number') min = 0;
     if (typeof max !== 'number') max = 0;
 
-    return  [min, max];
+    return [min, max];
 }
 
 export function css(element, styles = {}) {
@@ -22,10 +22,11 @@ export function css(element, styles = {}) {
 
 /**
  *
- * @param tagName: string
- * @param className?: string
- * @param children: Array<DOMElement>
- * @returns DOMElement
+ * @params:
+ *  tagName - string
+ *  className - string
+ *  children - Array<DOMElement>
+ * @return DOMElement
  */
 export function createElement(tagName, className, children) {
     const element = document.createElement(tagName);
@@ -41,5 +42,5 @@ export function createElement(tagName, className, children) {
 }
 
 export function getDataByDateRange(data, start, end) {
-    return data.filter(item => (item.t >= start && item.t <= end));
+    return data.filter((item) => (item.t >= start && item.t <= end));
 }

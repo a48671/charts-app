@@ -9,7 +9,6 @@ import { store } from "src/store";
 const scrollChartElement = scrollChart.getElement();
 
 class Chart extends AbstractComponent {
-
     constructor({ data }) {
         super();
         this.canvas = createElement('canvas', undefined);
@@ -38,16 +37,17 @@ class Chart extends AbstractComponent {
 
         function mousemove({ clientX }) {
             const { left } = self.canvas.getBoundingClientRect();
-            // так как плотность координат внутри canvas отличаются от размера элемента умножаем clientX на DPI_MULTIPLIER
+            // так как плотность координат внутри canvas отличаются
+            // от размера элемента умножаем clientX на DPI_MULTIPLIER
             const x = (clientX - left) * DPI_MULTIPLIER
             self.proxy.mouse = { x };
         }
 
-        window.addEventListener('resize', function () {
+        window.addEventListener('resize', function() {
             self.updateSizes();
         });
 
-        store.addSubscribe(state => {
+        store.addSubscribe((state) => {
             if (state.focusDate !== this.chart.data) {
                 this.setData(state.focusDate);
             }
@@ -56,6 +56,12 @@ class Chart extends AbstractComponent {
                 store.setState({ columnCountInWindow: this.chart.getColumnCount() })
             }
         });
+
+        this.onDestroyHandler = function() {
+            cancelAnimationFrame(this.raf);
+            this.canvas.removeListener('mousemove', mousemove);
+            this.canvas.removeListener('mouseleave', mouseleave);
+        }
     }
 
     setData(data) {
@@ -74,9 +80,7 @@ class Chart extends AbstractComponent {
     }
 
     destroy() {
-        cancelAnimationFrame(raf);
-        this.canvas.removeListener('mousemove', mousemove);
-        this.canvas.removeListener('mouseleave', mouseleave);
+        this.onDestroyHandler();
     }
 
     init() {
