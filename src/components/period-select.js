@@ -1,33 +1,50 @@
 import { AbstractComponent } from "./abstract-component";
-import { createElement, getDataByDateRange } from "../utils";
+import { Calendar } from "./calendar";
+import { createElement, getStringDateFromDate, getDataByDateRange } from "../utils";
 import { store } from "src/store";
 
 export class PeriodSelect extends AbstractComponent {
     constructor() {
         super();
-        this.start = createElement('input', 'period-select__item');
-        this.start.type = 'date';
-        this.start.value = store.state.start;
-        this.end = createElement('input', 'period-select__item');
-        this.end.type = 'date';
-        this.end.value = store.state.end;
-        this.wrapper = createElement('div', 'period-select', [this.start, this.end]);
 
-        this.wrapper.addEventListener('input', (event) => {
-            if (new Date(event.target.value).toString() === 'Invalid Date') return;
-            const { start, end, selectedData } = store.state;
-            const date = event.target.value;
-            const newStart = event.target === this.start ? date : start;
-            const newEnd = event.target === this.end ? date : end;
-            const data = getDataByDateRange(store.state[selectedData], newStart, newEnd);
-            switch (event.target) {
-                case this.start:
-                    store.setState({ start: event.target.value, data });
-                    return;
-                case this.end:
-                    store.setState({ end: event.target.value, data });
-                    return;
-            }
-        })
+        this.calendarForStart = new Calendar({
+            selectedDate: new Date('2005-12-31'),
+            name: 'с:',
+            onChange: this.onChangeStartDate
+        }).getElement();
+
+        this.calendarForEnd = new Calendar({
+            selectedDate: new Date('2005-12-31'),
+            name: 'по:',
+            onChange: this.onChangeEndDate
+        }).getElement();
+
+        this.start = createElement('div', 'period-select__item', [this.calendarForStart]);
+        this.end = createElement('div', 'period-select__item', [this.calendarForEnd]);
+
+
+        this.wrapper = createElement('div', 'period-select', [this.start, this.end]);
+    }
+
+    /**
+     *
+     * @param date: Date
+     */
+    onChangeStartDate(date) {
+        const { end, selectedData } = store.state;
+        const start = getStringDateFromDate(date);
+        const data = getDataByDateRange(store.state[selectedData], start, end);
+        store.setState({ start, data })
+    }
+
+    /**
+     *
+     * @param date: Date
+     */
+    onChangeEndDate(date) {
+        const { start, selectedData } = store.state;
+        const end = getStringDateFromDate(date);
+        const data = getDataByDateRange(store.state[selectedData], start, end);
+        store.setState({ end, data })
     }
 }

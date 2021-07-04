@@ -1,0 +1,131 @@
+.calendar {
+  display: block;
+  position: relative;
+  width: 234px;
+  height: 30px;
+  &__label {
+    text-align: center;
+    font-size: 16px;
+    border: 1px solid $chart-border-color;
+    border-radius: $border-radius;
+    height: 30px;
+    line-height: 30px;
+    cursor: pointer;
+    &:hover {
+      background-color: #fff;
+    }
+  }
+  &__dropdown {
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 0;
+    padding-top: 10px;
+    left: 0;
+    top: 100%;
+    pointer-events: none;
+    opacity: 0;
+    transition: 0.3s;
+    &.active {
+      z-index: 3;
+      height: auto;
+      pointer-events: auto;
+      opacity: 1;
+    }
+  }
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    background-color: #fff;
+    margin-bottom: 5px;
+  }
+  &__table {
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+    padding: 5px;
+    margin: auto;
+    background-color: #fff;
+    width: 100%;
+  }
+  &__select {
+    font-size: 16px;
+    padding: 2px 7px;
+    border: none;
+    outline: none;
+    color: $chart-text-color;
+    cursor: pointer;
+    &:hover {
+      background-color: $chart-background-color;
+    }
+  }
+  &__arrow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    &:hover {
+      background-color: $chart-background-color;
+    }
+    &:after {
+      display: block;
+      content: '';
+      width: 10px;
+      height: 10px;
+      border-bottom: 1px solid $chart-text-color;
+      border-right: 1px solid $chart-text-color;
+    }
+    &.left {
+      &:after {
+        transform: translateX(4px) rotate(135deg);
+      }
+    }
+    &.right {
+      &:after {
+        transform: translateX(-4px) rotate(-45deg);
+      }
+    }
+  }
+  &__week-day-names {
+    pointer-events: none;
+    user-select: none;
+  }
+  &__week-day-name {
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    vertical-align: middle;
+    height: 25px;
+    color: $chart-text-color;
+  }
+  &__week-col {
+    font-size: 14px;
+    text-align: center;
+    padding: 6px;
+    cursor: pointer;
+    color: $chart-text-color;
+    border: 1px solid transparent;
+    transition: 0.2s;
+    &.current {
+      background-color: $active-button-background-color;
+    }
+    &.selected {
+      border: 1px solid $chart-text-color;
+      font-weight: bold;
+    }
+    &:hover {
+      background-color: $chart-background-color;
+      color: #333;
+    }
+    &.empty {
+      cursor: none;
+      pointer-events: none;
+      &:hover {
+        background-color: transparent;
+        color: $chart-text-color;
+      }
+    }
+  }
+}
