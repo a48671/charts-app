@@ -30,7 +30,7 @@ class ScrollChart extends AbstractComponent {
             this.windowWidth = width;
             return;
         }
-        this.windowWidth = width * (this.columnCountInWindow / columnCount);
+        this.windowWidth = Math.floor(width * (this.columnCountInWindow / columnCount));
         this.setLeftOverlayWidth(width - this.rightOverlayWidth - this.windowWidth);
         this.setRightOverlayWidth(this.rightOverlayWidth);
         this.computeRangeData();

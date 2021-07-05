@@ -44,10 +44,6 @@ export function createElement(tagName, className, children) {
     return element;
 }
 
-export function getDataByDateRange(data, start, end) {
-    return data.filter((item) => (item.t >= start && item.t <= end));
-}
-
 /**
  *
  * @param start: number

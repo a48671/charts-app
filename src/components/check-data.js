@@ -1,6 +1,6 @@
 import { AbstractComponent } from "./abstract-component";
 import { store } from "src/store";
-import { createElement, getDataByDateRange } from "../utils";
+import { createElement } from "../utils";
 
 export class CheckData extends AbstractComponent {
     constructor() {
@@ -13,16 +13,13 @@ export class CheckData extends AbstractComponent {
         const children = [this.checkTemperature, this.checkPrecipitation];
         this.wrapper = createElement('div', 'check-data', children);
         this.wrapper.addEventListener('click', (event) => {
-            const { start, end, temperature, precipitation } = store.state;
             switch (event.target) {
                 case this.checkTemperature: {
-                    const data = getDataByDateRange(temperature, start, end);
-                    store.setState({data, selectedData: 'temperature'});
+                    store.setState({ selectedData: 'temperature' });
                     return;
                 }
                 case this.checkPrecipitation: {
-                    const data = getDataByDateRange(precipitation, start, end);
-                    store.setState({data, selectedData: 'precipitation'});
+                    store.setState({ selectedData: 'precipitation' });
                     return;
                 }
             }

@@ -1,6 +1,6 @@
 import { AbstractComponent } from "./abstract-component";
 import { Calendar } from "./calendar";
-import { createElement, getStringDateFromDate, getDataByDateRange } from "../utils";
+import { createElement, getStringDateFromDate } from "../utils";
 import { store } from "src/store";
 
 export class PeriodSelect extends AbstractComponent {
@@ -8,13 +8,13 @@ export class PeriodSelect extends AbstractComponent {
         super();
 
         this.calendarForStart = new Calendar({
-            selectedDate: new Date('2005-12-31'),
+            selectedDate: new Date(store.state.start),
             name: 'с:',
             onChange: this.onChangeStartDate
         }).getElement();
 
         this.calendarForEnd = new Calendar({
-            selectedDate: new Date('2005-12-31'),
+            selectedDate: new Date(store.state.end),
             name: 'по:',
             onChange: this.onChangeEndDate
         }).getElement();
@@ -31,10 +31,8 @@ export class PeriodSelect extends AbstractComponent {
      * @param date: Date
      */
     onChangeStartDate(date) {
-        const { end, selectedData } = store.state;
         const start = getStringDateFromDate(date);
-        const data = getDataByDateRange(store.state[selectedData], start, end);
-        store.setState({ start, data })
+        store.setState({ start })
     }
 
     /**
@@ -42,9 +40,7 @@ export class PeriodSelect extends AbstractComponent {
      * @param date: Date
      */
     onChangeEndDate(date) {
-        const { start, selectedData } = store.state;
         const end = getStringDateFromDate(date);
-        const data = getDataByDateRange(store.state[selectedData], start, end);
-        store.setState({ end, data })
+        store.setState({ end })
     }
 }

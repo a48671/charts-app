@@ -1,6 +1,4 @@
-import temperature from 'src/mocks/temperature.json';
-import precipitation from 'src/mocks/precipitation.json';
-import {getDataByDateRange} from "./utils";
+import { GetDataService } from 'src/services/get-data.service'
 
 class Store {
     constructor() {
@@ -11,22 +9,37 @@ class Store {
             colWidth: 25,
             columnCountInWindow: 0,
             start: '2005-12-31',
-            end: '2006-12-31',
-            temperature,
-            precipitation
+            end: '2006-06-20'
         }
-        this.state.data = getDataByDateRange(this.state[this.state.selectedData], this.state.start, this.state.end);
+
         this.subscribtions = [];
+
+        this.getDataService = new GetDataService(() => {
+            this.getData();
+        });
     }
     addSubscribe(callback) {
         this.subscribtions.push(callback);
     }
     setState(newState) {
+        const prevSate = { ...this.state }
         this.state = {
             ...this.state,
             ...newState
         }
         this.subscribtions.forEach((callback) => callback(this.state));
+        this.update(prevSate);
+    }
+    update(prevSate) {
+        const { start, end, selectedData } = this.state;
+        if (prevSate.start !== start || prevSate.end !== end || prevSate.selectedData !== selectedData) {
+            this.getData(start, end);
+        }
+    }
+    getData() {
+        const { start, end, selectedData } = this.state;
+        this.getDataService.getData(selectedData, start, end)
+            .then((data) => this.setState({ data }));
     }
 }
 
